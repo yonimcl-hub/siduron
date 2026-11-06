@@ -129,6 +129,8 @@ p.om-today + p:not(.om-today){margin-top:.55em}
 p.om-today.said-p{color:inherit;font-weight:400}
 /* special inserts shown in tekhelet are also set in bold, so they stand out while scrolling */
 body.is-ayt span.ayt, body.is-ayt p.ayt, p.dv:not(.d-notfast):not(.d-notav9), span.dv{font-weight:700}
+/* instruction lines (p.note) reset margins; keep the gold bar of marked inserts aligned for them too */
+.txt p.dv:not(.d-notfast):not(.d-notav9), body.is-ayt .txt p.ayt, .txt p.om-today{margin-inline-start:calc(var(--fs) * -.75)}
 .txt p b.aytb{color:var(--tekhelet);font-weight:700}
 .omerban{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .omerban button{border:1px solid var(--line);background:var(--chip);color:var(--tekhelet);border-radius:999px;padding:6px 14px;font:inherit;font-weight:600;cursor:pointer}
