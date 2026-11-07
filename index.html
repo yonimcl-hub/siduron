@@ -64,6 +64,46 @@ button{font:inherit;color:inherit}
 .plist .now{font-size:13px;font-weight:600;color:var(--gold)}
 .plist .chev{color:var(--muted);font-size:20px}
 
+
+/* ---------- bottom navigation & extra tabs ---------- */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:40;display:flex;justify-content:space-around;background:var(--sheet);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+.bnav[hidden]{display:none}
+.bnav button{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;cursor:pointer;color:var(--muted);font-family:"Assistant",Arial,sans-serif;font-size:12px;font-weight:600;padding:4px 2px;border-radius:10px}
+.bnav button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bnav button[aria-current="page"]{color:var(--tekhelet)}
+.bnav button[aria-current="page"] svg{stroke-width:2.1}
+body.has-bnav{padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))}
+.tabpage{display:flex;justify-content:center;padding:clamp(32px,8vh,72px) 20px 40px}
+.tab-in{width:100%;max-width:440px}
+.tab-title{font-family:"Frank Ruhl Libre","Noto Serif Hebrew",serif;font-weight:900;font-size:clamp(34px,9vw,46px);text-align:center;margin:0 0 24px;color:var(--ink)}
+.tab-search input{width:100%;font:inherit;font-size:16px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--sheet);color:var(--ink)}
+.soon{margin-top:20px;padding:20px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);text-align:center;line-height:1.6;font-size:15px}
+.soon b{display:block;color:var(--gold);font-size:13px;letter-spacing:.04em;margin-bottom:4px}
+/* ---------- settings ---------- */
+.pgrp{font-size:14px;font-weight:700;color:var(--muted);margin:26px 4px 8px}
+.pcard{background:var(--sheet);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.prow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px}
+.prow+.prow{border-top:1px solid var(--line)}
+.prow.col{flex-direction:column;align-items:stretch}
+.plab{font-size:16px;font-weight:600;color:var(--ink);display:flex;flex-direction:column;gap:2px}
+.plab small{font-size:13px;font-weight:400;color:var(--muted)}
+.plab output{font-weight:400;color:var(--muted);font-size:14px}
+.prow select{font:inherit;font-size:15px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);max-width:55%}
+#fsrange{width:100%;accent-color:var(--tekhelet)}
+.fsprev p{margin:4px 0 0;text-align:center;line-height:1.6}
+.sw{appearance:none;-webkit-appearance:none;width:46px;height:28px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;flex:none;transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:var(--sheet);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:inset-inline-start .15s}
+.sw:checked{background:var(--tekhelet)}
+.sw:checked::after{inset-inline-start:21px}
+.pbtn{font:inherit;font-size:15px;font-weight:600;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer}
+.pbtn.danger{background:#B3261E;border-color:#B3261E;color:#fff}
+dialog.confirm{width:min(340px,90vw)}
+.cf-in{padding:20px}
+.cf-in b{display:block;font-size:18px;margin-bottom:8px}
+.cf-in p{margin:0 0 18px;font-size:15px;line-height:1.55;color:var(--muted)}
+.cf-btns{display:flex;gap:10px;justify-content:flex-end}
+.about summary{cursor:pointer;list-style-position:inside}
+.about p{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--muted)}
 /* ---------- prayer screen ---------- */
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--sheet);border-bottom:1px solid var(--line)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--sheet)}
@@ -192,12 +232,6 @@ dialog a:hover{background:var(--chip)}
     </div>
     <h2>תפילה</h2>
     <ul class="plist" id="plist"></ul>
-    <h2>מראה</h2>
-    <div class="seg small" role="group" aria-label="בחירת מראה" id="themeseg">
-      <button data-t="auto">אוטומטי</button>
-      <button data-t="light">בהיר</button>
-      <button data-t="dark">כהה</button>
-    </div>
   </div>
 </div>
 
@@ -226,9 +260,85 @@ dialog a:hover{background:var(--chip)}
       <div class="next" id="next"></div>
     </main>
   </div>
-  <footer>מקור הנוסחים: סידורי ״תורת אמת״ ומהדורות נוספות המתפרסמות בספריא (Sefaria). הקינות לנוסח אשכנז וספרד: ויקיטקסט, ברישיון CC-BY-SA. יש לבדוק מול סידור מודפס בעת הצורך.</footer>
+  <footer>מקורות ורישיונות – בלשונית ״הגדרות״. יש לבדוק מול סידור מודפס בעת הצורך.</footer>
 </div>
 
+
+<!-- additional tabs (content is added in later stages) -->
+<div id="extras" class="tabpage" hidden>
+  <div class="tab-in">
+    <h1 class="tab-title">תפילות וסדרים</h1>
+    <div class="tab-search"><input type="search" placeholder="חיפוש תפילה או סדר…" disabled aria-label="חיפוש"></div>
+    <div class="soon"><b>בקרוב</b>כאן יופיעו ברכות, קריאת שמע על המיטה, הבדלה, ברכת הלבנה, סדרי חנוכה ופורים ועוד – עם חיפוש.</div>
+  </div>
+</div>
+<div id="learn" class="tabpage" hidden>
+  <div class="tab-in">
+    <h1 class="tab-title">לימוד</h1>
+    <div class="soon"><b>בקרוב</b>חיזוק יומי, ובהמשך תהילים ושניים מקרא ואחד תרגום.</div>
+  </div>
+</div>
+<div id="prefs" class="tabpage" hidden>
+  <div class="tab-in">
+    <h1 class="tab-title">הגדרות</h1>
+
+    <h2 class="pgrp">תצוגה</h2>
+    <div class="pcard">
+      <div class="prow col"><span class="plab">מראה</span>
+        <div class="seg small" role="group" aria-label="בחירת מראה" id="themeseg">
+          <button data-t="auto">אוטומטי</button><button data-t="light">בהיר</button><button data-t="dark">כהה</button>
+        </div></div>
+      <div class="prow col"><span class="plab">גודל גופן <output id="fsval"></output></span>
+        <input type="range" id="fsrange" min="15" max="40" step="1" aria-label="גודל גופן">
+        <div class="txt fsprev"><p><b>בָּרוּךְ</b> אַתָּה יְהֹוָה, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם</p></div></div>
+      <label class="prow"><span class="plab">הצגת הוראות והלכות<small>ההוראות הקטנות והאפורות שבתוך התפילה</small></span>
+        <input type="checkbox" class="sw" id="notesw"></label>
+    </div>
+
+    <h2 class="pgrp">נוסח</h2>
+    <div class="pcard">
+      <div class="prow col">
+        <div class="seg" role="group" aria-label="בחירת נוסח" id="nusach2">
+          <button data-n="edot">עדות המזרח</button><button data-n="sefard">ספרד</button><button data-n="ashkenaz">אשכנז</button>
+        </div></div>
+    </div>
+
+    <h2 class="pgrp">מיקום וזמנים</h2>
+    <div class="pcard">
+      <label class="prow"><span class="plab">עיר<small>זמני היום, והשקיעה שבה מתחלף התאריך העברי</small></span>
+        <select id="citysel"></select></label>
+      <label class="prow"><span class="plab">פורים<small>בירושלים ובערים מוקפות חומה חוגגים בט״ו</small></span>
+        <select id="purimsel"><option value="auto">אוטומטי לפי העיר</option><option value="14">י״ד באדר</option><option value="15">ט״ו באדר (שושן פורים)</option></select></label>
+    </div>
+
+    <h2 class="pgrp">מנהגים</h2>
+    <div class="pcard">
+      <label class="prow"><span class="plab">יום העצמאות ויום ירושלים<small>תחנון, ״למנצח״ ו״תפלה לדוד״</small></span>
+        <select id="yhsel"><option value="say">אומרים תחנון</option><option value="skip">לא אומרים תחנון</option></select></label>
+    </div>
+
+    <h2 class="pgrp">כללי</h2>
+    <div class="pcard">
+      <details class="prow col about"><summary class="plab">אודות ומקורות</summary>
+        <p>נוסחי התפילה: סידורי ״תורת אמת״ ומהדורות נוספות המתפרסמות בספריא (Sefaria).</p>
+        <p>סדר תשעה באב לנוסח עדות המזרח: כולל אור האמת, דרך ספריא.</p>
+        <p>הקינות לנוסח אשכנז וספרד: ויקיטקסט, ברישיון CC-BY-SA.</p>
+        <p>פסוקי התורה וההפטרות: tanach.us (נוסח כתר ארם צובה, נחלת הכלל).</p>
+        <p>החלוקה לעליות ולוח הקריאות: Hebcal.</p>
+        <p>זמני היום מחושבים לפי מיקום השמש. יש לבדוק מול סידור ולוח מודפסים בעת הצורך.</p>
+      </details>
+      <div class="prow"><span class="plab">איפוס הגדרות<small>החזרת כל ההגדרות לברירת המחדל</small></span>
+        <button type="button" class="pbtn" id="resetbtn">איפוס</button></div>
+    </div>
+  </div>
+</div>
+<nav class="bnav" id="bnav" aria-label="ניווט ראשי">
+  <button data-tab="home"><svg viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2.5z"/><path d="M19 17v4H6.5"/><path d="M9 7h6M9 11h6"/></svg><span>סידור</span></button>
+  <button data-tab="extras"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><circle cx="17" cy="17" r="3"/><path d="M19.2 19.2 21 21"/></svg><span>תפילות וסדרים</span></button>
+  <button data-tab="learn"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z"/><path d="M12 6v14"/></svg><span>לימוד</span></button>
+  <button data-tab="prefs"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>הגדרות</span></button>
+</nav>
+<dialog id="resetdlg" class="confirm"><div class="cf-in"><b>לאפס את ההגדרות?</b><p>כל ההגדרות יחזרו לברירת המחדל: נוסח, גודל גופן, מראה, הוראות, עיר ומנהגים. לא ניתן לבטל פעולה זו.</p><div class="cf-btns"><button type="button" class="pbtn" id="resetno">ביטול</button><button type="button" class="pbtn danger" id="resetyes">איפוס</button></div></div></dialog>
 <dialog id="zdlg"><div class="dh"><span id="ztitle">זמני היום</span><button class="iconbtn" id="zclose" aria-label="סגירה">✕</button></div><div class="zsub" id="zsub"></div><ul class="zlist" id="zlist"></ul></dialog>
 <dialog id="tocdlg"><div class="dh"><span>תוכן התפילה</span><button class="iconbtn" id="tocclose" aria-label="סגירה">✕</button></div><ol id="toc2"></ol></dialog>
 
@@ -357,12 +467,20 @@ dialog a:hover{background:var(--chip)}
     if ((m==='אדר' || m==='אדר א׳' || m==='אדר ב׳') && (day===14 || day===15)) return true;
     if (m==='אייר' && day===14) return !forEve;
     if (m==='אייר' && day===18) return true;
+    // Yom HaAtzmaut (5 Iyar, moved when needed) and Yom Yerushalayim (28 Iyar), for those who do not say Tachanun
+    if (m==='אייר' && store.get('siddur-yh')==='skip') {
+      const d5=dowOf(5); const yha = d5===5 ? 4 : d5===6 ? 3 : d5===1 ? 6 : 5;
+      if (day===yha || day===28) return true;
+    }
     if (m==='סיוון' && day<=12) return true;
     if (m==='אב' && (day===15 || day===9 || (day===10 && dowOf(9)===6))) return true;
     return false;
   }
   // ---- Hebrew date (day changes at sunset, calculated for Jerusalem) ----
-  const LAT=31.778, LNG=35.235;
+  const CITIES=[['ירושלים',31.778,35.235],['תל אביב',32.0853,34.7818],['חיפה',32.794,34.9896],['באר שבע',31.2518,34.7913],['אשדוד',31.8014,34.6435],['בני ברק',32.0807,34.8338],['פתח תקווה',32.084,34.8878],['מודיעין',31.898,35.0104],['נתניה',32.3215,34.8532],['צפת',32.9646,35.496],['טבריה',32.7922,35.5312],['אילת',29.5577,34.9519]];
+  let CITY=CITIES.find(c=>c[0]===store.get('siddur-city'))||CITIES[0];
+  let LAT=CITY[1], LNG=CITY[2];
+  const purimDay=()=>{ const v=store.get('siddur-purim')||'auto'; return v==='15'?15 : v==='14'?14 : (CITY[0]==='ירושלים'?15:14); };
   function sunsetUTC(d){
     const start=Date.UTC(d.getUTCFullYear(),0,1);
     const n=Math.floor((Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-start)/864e5)+1;
@@ -419,7 +537,7 @@ dialog a:hover{background:var(--chip)}
     }
     // Purim: 14 Adar (Adar II in a leap year); Ta'anit Esther: 13 Adar, or Thursday 11 Adar when the 13th is Shabbat
     const adar = parts.month==='אדר' || parts.month==='אדר ב׳';
-    if (adar && hday===14) T.add('purim');
+    if (adar && hday===purimDay()) T.add('purim');
     if (adar) {
       const dow13=(d.getDay()+(13-hday)+70)%7;
       if ((dow13!==6 && hday===13) || (dow13===6 && hday===11)) T.add('esther');
@@ -462,7 +580,14 @@ dialog a:hover{background:var(--chip)}
     if (tishrei && hday===21) T.add('hr21');
     const isoD=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     const sx=(TORAH.X||{})[isoD]||[];
-    const spS=sx.find(x=>!x[1])||null, spM=sx.find(x=>x[1])||null;
+    let spS=sx.find(x=>!x[1])||null; const spM=sx.find(x=>x[1])||null;
+    // Purim reading follows the chosen day (14 or 15 Adar)
+    if (spS && /^Purim/.test(spS[3]) && !T.has('purim')) spS=null;
+    if (!spS && T.has('purim')) {
+      const y=new Date(d); y.setDate(y.getDate()-1);
+      const isoY=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+      spS=((TORAH.X||{})[isoY]||[]).find(x=>!x[1] && /^Purim/.test(x[3]))||null;
+    }
     if (spS) T.add('torah');
     TORAH_INFO = spS ? {read:-1, sp:spS, mi:spM, note:''}
                : (special.length===1 && T.has('rc')) ? {read:-1, rc:true, note:''}
@@ -550,9 +675,24 @@ dialog a:hover{background:var(--chip)}
     openPrayer(b.dataset.p);
   });
 
+  const TABS=['home','extras','learn','prefs'];
+  function setTab(tab){
+    TABS.forEach(k=>{ $(k).hidden = k!==tab; });
+    $('prayer').hidden=true;
+    $('bnav').hidden=false; document.body.classList.add('has-bnav');
+    document.querySelectorAll('#bnav button').forEach(b=>b.setAttribute('aria-current', b.dataset.tab===tab ? 'page' : 'false'));
+  }
+  function showTab(tab){
+    if (tab==='home') return showHome();
+    state.p=null; setTab(tab); if (tab==='prefs') syncPrefs();
+    document.title={extras:'תפילות וסדרים',learn:'לימוד',prefs:'הגדרות'}[tab]+' – סידור לימות החול';
+    try{ history.replaceState(null,'','#'+tab); }catch(e){}
+    window.scrollTo({top:0,behavior:'auto'});
+  }
+  document.querySelectorAll('#bnav button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
   function showHome(){
     state.p=null;
-    $('prayer').hidden=true; $('home').hidden=false;
+    setTab('home');
     document.title='סידור לימות החול';
     try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
     renderHome(); updateHebrewDate();
@@ -560,7 +700,9 @@ dialog a:hover{background:var(--chip)}
   }
   function openPrayer(p){
     state.p=p;
-    $('home').hidden=true; $('prayer').hidden=false;
+    TABS.forEach(k=>{ $(k).hidden=true; });
+    $('bnav').hidden=true; document.body.classList.remove('has-bnav');
+    $('prayer').hidden=false;
     renderPrayer();
     window.scrollTo({top:0,behavior:'auto'});
   }
@@ -568,10 +710,36 @@ dialog a:hover{background:var(--chip)}
   $('omergo').onclick=()=>{ const el=document.querySelector('.om-today'); if(el) el.scrollIntoView({block:'center'}); };
 
   // ---- prayer ----
-  function applyFs(){ document.documentElement.style.setProperty('--fs', state.fs+'px'); store.set('siddur-fs', String(state.fs)); }
+  function applyFs(){ document.documentElement.style.setProperty('--fs', state.fs+'px'); store.set('siddur-fs', String(state.fs)); if ($('fsrange')) { $('fsrange').value=state.fs; $('fsval').textContent=state.fs+'px'; } }
   $('smaller').onclick=()=>{state.fs=Math.max(15,state.fs-2);applyFs();};
   $('bigger').onclick=()=>{state.fs=Math.min(40,state.fs+2);applyFs();};
-  function applyNotes(){ document.body.classList.toggle('hide-notes',!state.notes); $('notes').setAttribute('aria-pressed',String(state.notes)); store.set('siddur-notes',state.notes?'1':'0'); }
+  function syncPrefs(){
+    document.querySelectorAll('#nusach2 button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.n===state.n)));
+    $('fsrange').value=state.fs; $('fsval').textContent=state.fs+'px';
+    $('notesw').checked=state.notes;
+    $('purimsel').value=store.get('siddur-purim')||'auto';
+    $('yhsel').value=store.get('siddur-yh')||'say';
+    $('citysel').value=CITY[0];
+  }
+  function applyNotes(){ document.body.classList.toggle('hide-notes',!state.notes); $('notes').setAttribute('aria-pressed',String(state.notes)); store.set('siddur-notes',state.notes?'1':'0'); if ($('notesw')) $('notesw').checked=state.notes; }
+  $('citysel').innerHTML=CITIES.map(c=>'<option>'+c[0]+'</option>').join('');
+  $('fsrange').addEventListener('input',e=>{ state.fs=+e.target.value; applyFs(); });
+  $('notesw').addEventListener('change',e=>{ state.notes=e.target.checked; applyNotes(); });
+  document.querySelectorAll('#nusach2 button').forEach(b=>b.addEventListener('click',()=>{ state.n=b.dataset.n; store.set('siddur-n',state.n); syncPrefs(); renderHome(); }));
+  $('citysel').addEventListener('change',e=>{ CITY=CITIES.find(c=>c[0]===e.target.value)||CITIES[0]; LAT=CITY[1]; LNG=CITY[2]; store.set('siddur-city',CITY[0]); updateHebrewDate(); });
+  $('purimsel').addEventListener('change',e=>{ store.set('siddur-purim',e.target.value); updateHebrewDate(); });
+  $('yhsel').addEventListener('change',e=>{ store.set('siddur-yh',e.target.value); updateHebrewDate(); });
+  $('resetbtn').addEventListener('click',()=>$('resetdlg').showModal());
+  $('resetno').addEventListener('click',()=>$('resetdlg').close());
+  $('resetdlg').addEventListener('click',e=>{ if(e.target===$('resetdlg')) $('resetdlg').close(); });
+  $('resetyes').addEventListener('click',()=>{
+    ['siddur-n','siddur-fs','siddur-notes','siddur-theme','siddur-city','siddur-purim','siddur-yh'].forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
+    // apply the defaults right away, without reloading the page
+    state.n='edot'; state.fs=22; state.notes=true;
+    CITY=CITIES[0]; LAT=CITY[1]; LNG=CITY[2];
+    applyFs(); applyNotes(); applyTheme(); renderHome(); updateHebrewDate(); syncPrefs();
+    $('resetdlg').close();
+  });
   $('notes').onclick=()=>{state.notes=!state.notes;applyNotes();};
   const dlg=$('tocdlg');
   $('tocbtn').onclick=()=>dlg.showModal();
@@ -792,7 +960,7 @@ dialog a:hover{background:var(--chip)}
       if (t<now) cls='past'; else if(!nextMarked){cls='nextz';nextMarked=true;}
       return '<li class="'+cls+'"><span class="zn">'+name+'</span><span class="zt">'+tfmt.format(t)+'</span></li>';
     }).join('');
-    $('zsub').textContent=dfmt.format(z.date)+' · לפי אופק ירושלים';
+    $('zsub').textContent=dfmt.format(z.date)+' · לפי אופק '+CITY[0];
   }
   const zdlg=$('zdlg');
   $('hdate').onclick=()=>{renderZmanim(); zdlg.showModal();};
@@ -824,7 +992,7 @@ dialog a:hover{background:var(--chip)}
   applyTheme();
 
   applyFs(); applyNotes();
-  if (state.p) openPrayer(state.p); else showHome();
+  if (state.p) openPrayer(state.p); else if (['extras','learn','prefs'].includes(h)) showTab(h); else showHome();
 })();
 </script>
 </body>
