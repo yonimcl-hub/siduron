@@ -133,6 +133,11 @@ body.is-ayt span.ayt, body.is-ayt p.ayt, p.dv:not(.d-notfast):not(.d-notav9), sp
 .txt p.dv:not(.d-notfast):not(.d-notav9), body.is-ayt .txt p.ayt, .txt p.om-today{margin-inline-start:calc(var(--fs) * -.75)}
 .txt p b.aytb{color:var(--tekhelet);font-weight:700}
 .omerban{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.omer-jump{display:flex;justify-content:center;margin:.4em 0 1em}
+.omer-jump[hidden]{display:none}
+.omer-jump button{font-family:"Assistant",Arial,sans-serif;font-size:16px;font-weight:600;color:var(--tekhelet);background:var(--chip);border:1px solid var(--line);border-inline-start:3px solid var(--gold);border-radius:999px;padding:9px 18px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.omer-jump button:hover{background:var(--line)}
+.omer-jump button b{font-family:"Frank Ruhl Libre",serif;font-size:18px}
 .omerban button{border:1px solid var(--line);background:var(--chip);color:var(--tekhelet);border-radius:999px;padding:6px 14px;font:inherit;font-weight:600;cursor:pointer}
 p.dv.d-notfast,p.dv.d-notav9{border-inline-start:0;padding-inline-start:0;margin-inline-start:0;color:inherit}
 .dayban{margin:0 0 16px;padding:10px 14px;border:1px solid var(--line);border-inline-start:3px solid var(--gold);border-radius:8px;background:var(--sheet);font-size:15px;color:var(--ink)}
@@ -315,6 +320,11 @@ dialog a:hover{background:var(--chip)}
   function applyDay(){
     document.querySelectorAll('p.om-today').forEach(el=>el.classList.remove('om-today'));
     const ob=$('omerban');
+    document.querySelectorAll('.omer-jump').forEach(w=>{
+      const on = !!(OMER_N && document.querySelector('.om-'+OMER_N));
+      w.hidden=!on;
+      if (on) w.firstChild.innerHTML='לספירה של הלילה: <b>'+gem(OMER_N)+' לעומר</b> <span aria-hidden="true">↓</span>';
+    });
     if (OMER_N && state.p==='arvit' && document.querySelector('.om-'+OMER_N)) {
       document.querySelectorAll('.om-'+OMER_N).forEach(el=>el.classList.add('om-today'));
       $('omertxt').textContent='ספירת העומר – הלילה סופרים '+gem(OMER_N)+' לעומר.';
@@ -684,6 +694,16 @@ dialog a:hover{background:var(--chip)}
         if ((kad || ked || /^ברוך שם כבוד מלכותו לעולם ועד$/.test(tx)) && !isN && !heading) pe.classList.add('said-p');
         if (kad) kad--; if (ked) ked--;
         sec.appendChild(pe);
+      }
+      if (s.t==='ספירת העומר') {
+        // a button under the blessing that jumps to tonight's count
+        const bp=[...sec.querySelectorAll('p')].find(p=>/וצונו על ספירת הע[ו]?מר/.test(strip(p.textContent).replace(/\s+/g,' ')));
+        if (bp) {
+          const w=document.createElement('div'); w.className='omer-jump'; w.hidden=true;
+          const btn=document.createElement('button'); btn.type='button';
+          btn.addEventListener('click',()=>{ const el=document.querySelector('p.om-today'); if(el) el.scrollIntoView({block:'center'}); });
+          w.appendChild(btn); bp.after(w);
+        }
       }
       frag.appendChild(sec);
       toc += '<li'+(s.c?' class="'+s.c+'"':'')+'><a href="#s'+i+'" data-i="'+i+'">'+s.t+'</a></li>';
