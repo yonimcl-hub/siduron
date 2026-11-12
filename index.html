@@ -225,6 +225,14 @@ dialog a:hover{background:var(--chip)}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
 .xsub{display:block;font-size:.78em;font-weight:400;opacity:.7;margin-top:2px}
+.hmoed{margin-top:10px;font-family:"Frank Ruhl Libre",serif;font-size:18px;font-weight:700;color:var(--gold)}
+.xlist li{position:relative}
+.xlist li:has(.pin)>button[data-p] .chev{margin-inline-start:44px}
+.xlist .pin{position:absolute;top:0;bottom:0;inset-inline-end:34px;width:44px;display:flex;align-items:center;justify-content:center;border:0;background:none;cursor:pointer;color:var(--muted);padding:0}
+.xlist .pin svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;transform:rotate(45deg)}
+.xlist .pin[aria-pressed="true"]{color:var(--tekhelet)}
+.xlist .pin[aria-pressed="true"] svg{fill:currentColor}
+.xlist .pin:hover{color:var(--tekhelet)}
 </style>
 </head>
 <body>
@@ -235,6 +243,7 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
   <div class="home-in">
     <h1>סידור<span>לימות החול</span></h1>
     <button id="hdate" class="hdate" aria-haspopup="dialog"></button>
+    <div id="hmoed" class="hmoed" hidden></div>
     <h2>נוסח</h2>
     <div class="seg" role="group" aria-label="בחירת נוסח" id="nusach">
       <button data-n="edot">עדות המזרח</button>
@@ -447,6 +456,9 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
     set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
   };
   const $ = id => document.getElementById(id);
+  function getPins(){ try{ const v=JSON.parse(store.get('siddur-pins')||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+  function togglePin(k){ const p=getPins(), i=p.indexOf(k); if(i>=0) p.splice(i,1); else p.push(k); store.set('siddur-pins',JSON.stringify(p)); }
+  const PIN_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 4 4v2h-5v6l-1 1-1-1v-6H6v-2l4-4z"/></svg>';
 
   let DAYTYPES=new Set(), OMER_N=0;
   function applyDay(){
@@ -581,6 +593,37 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
     if (minor) T.add('fastm');
     if (minor || T.has('av9')) T.add('fast'); else T.add('notfast');
     if (!T.has('av9')) T.add('notav9');
+    // special-day label on the home page (weekday occasions only)
+    {
+      const L=[], mon=parts.month, dow=d.getDay();
+      const pm=dt=>Object.fromEntries(hfmt.formatToParts(dt).map(p=>[p.type,p.value]));
+      if (mon==='כסלו' && hday>=25) L.push(gem(hday-24)+' דחנוכה');
+      if (mon==='טבת' && T.has('chanukah')) {
+        const lk=new Date(d); lk.setDate(lk.getDate()-hday);
+        L.push(gem(+pm(lk).day-24+hday)+' דחנוכה');
+      }
+      if (hday===30) {
+        const nx=new Date(d); nx.setDate(nx.getDate()+1);
+        L.push('ראש חודש '+pm(nx).month+' – יום א׳');
+      } else if (hday===1 && !tishrei) {
+        const pv=new Date(d); pv.setDate(pv.getDate()-1);
+        L.push('ראש חודש '+mon+(+pm(pv).day===30?' – יום ב׳':''));
+      }
+      if (T.has('gedalia')) L.push('צום גדליה'+(hday===4?' (נדחה)':''));
+      if (tishrei && hday>=16 && hday<=20) L.push(gem(hday-15)+' דחוה״מ סוכות');
+      if (tishrei && hday===21) L.push('הושענא רבה');
+      if (T.has('tevet10')) L.push('עשרה בטבת');
+      if (mon==='שבט' && hday===15) L.push('ט״ו בשבט');
+      if (T.has('esther')) L.push('תענית אסתר'+(hday===11?' (מוקדם)':''));
+      if (adar && hday===14) L.push('פורים');
+      if (adar && hday===15) L.push('שושן פורים');
+      if (mon==='ניסן' && hday>=16 && hday<=20) L.push(gem(hday-15)+' דחוה״מ פסח');
+      if (mon==='אייר' && hday===18) L.push('ל״ג בעומר');
+      if (T.has('tammuz17')) L.push('שבעה עשר בתמוז'+(hday===18?' (נדחה)':''));
+      if (T.has('av9')) L.push('תשעה באב'+(hday===10?' (נדחה)':''));
+      const el=document.getElementById('hmoed');
+      if (el) { el.textContent=L.join(' · '); el.hidden=!L.length; }
+    }
     // Tachanun (Israel customs): today for Shacharit; for Mincha also not on the eve of a day without Tachanun
     const todayNo=noTachanun(d,false), tomorrow=new Date(d); tomorrow.setDate(tomorrow.getDate()+1);
     if (!todayNo) T.add('tachsh'); else T.add('notach');
@@ -685,7 +728,8 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
   // ---- home ----
   function renderHome(){
     document.querySelectorAll('#nusach button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.n===state.n)));
-    $('plist').innerHTML = PRAYERS.slice(0,HOME_N).map(([k,l])=>
+    const pins=getPins();
+    $('plist').innerHTML = [...PRAYERS.slice(0,HOME_N), ...PRAYERS.slice(HOME_N).filter(([k])=>pins.includes(k) && DATA[state.n][k])].map(([k,l])=>
       '<li><button data-p="'+k+'"><span class="nm">'+l+'</span><span class="chev" aria-hidden="true">›</span></button></li>'
     ).join('');
     renderExtras();
@@ -736,18 +780,21 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
   const xnorm=s=>String(s||'').replace(/<[^>]+>/g,'').replace(/[\u0591-\u05C7]/g,'').replace(/["'\u05F3\u05F4\u2019\u201C\u201D]/g,'').trim();
   function renderExtras(){
     const q=xnorm($('xsearch').value);
-    const rows=[];
+    const rows=[], pins=getPins(), fixedK=new Set(PRAYERS.slice(0,HOME_N).map(x=>x[0]));
     EXTRAS.forEach(x=>{
       const secs=DATA[state.n][x.k]; if(!secs) return;
       if(!q || xnorm(x.l).includes(q)){ rows.push({k:x.k,l:x.l,soon:x.soon}); return; }
       secs.forEach((s,i)=>{ if(xnorm(s.t).includes(q)) rows.push({k:x.k,l:x.l,sub:s.t,s:i}); });
     });
     $('xlist').innerHTML = rows.length ? rows.map(x=>
-      '<li><button data-p="'+x.k+'"'+(x.s!=null?' data-s="'+x.s+'"':'')+(x.soon?' disabled':'')+'><span class="nm">'+x.l+(x.sub?'<span class="xsub">'+x.sub+'</span>':'')+'</span>'+(x.soon?'<span class="xsoon">בקרוב</span>':'<span class="chev" aria-hidden="true">›</span>')+'</button></li>'
+      '<li><button data-p="'+x.k+'"'+(x.s!=null?' data-s="'+x.s+'"':'')+(x.soon?' disabled':'')+'><span class="nm">'+x.l+(x.sub?'<span class="xsub">'+x.sub+'</span>':'')+'</span>'+(x.soon?'<span class="xsoon">בקרוב</span>':'<span class="chev" aria-hidden="true">›</span>')+'</button>'
+      +(fixedK.has(x.k)?'':'<button class="pin" data-pin="'+x.k+'" aria-pressed="'+pins.includes(x.k)+'" aria-label="'+(pins.includes(x.k)?'הסרה מהעמוד הראשי':'נעיצה לעמוד הראשי')+'" title="'+(pins.includes(x.k)?'הסרה מהעמוד הראשי':'נעיצה לעמוד הראשי')+'">'+PIN_SVG+'</button>')+'</li>'
     ).join('') : '<li class="xnone">לא נמצאו תוצאות</li>';
   }
   $('xsearch').addEventListener('input',renderExtras);
   $('xlist').addEventListener('click',e=>{
+    const pb=e.target.closest('button.pin');
+    if (pb){ togglePin(pb.dataset.pin); const sy=window.scrollY; renderHome(); window.scrollTo(0,sy); return; }
     const b=e.target.closest('button[data-p]'); if(!b || b.disabled) return;
     FROM='extras'; openPrayer(b.dataset.p);
     if (b.dataset.s!=null){ const el=$('s'+b.dataset.s); if(el) setTimeout(()=>el.scrollIntoView({block:'start'}),30); }
