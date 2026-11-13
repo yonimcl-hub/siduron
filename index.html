@@ -839,6 +839,14 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
     catch(e){ try{ navigator.sendBeacon && navigator.sendBeacon(TRACK_URL,new Blob([body],{type:'text/plain;charset=utf-8'})); }catch(e2){} }
   }
   function trackFlush(){ if (trk) trackSend(); }
+  // prayer opens -> tab prayer_views (nusach: 1 = עדות המזרח, 2 = ספרד, 3 = אשכנז)
+  function trackPrayer(k,n){
+    setTimeout(()=>{
+      const name=(PRAYERS.find(x=>x[0]===k)||[k,k])[1];
+      const body=JSON.stringify({type:'prayer',dev:devId(),nusach:({edot:1,sefard:2,ashkenaz:3})[n]||'',prayer:name});
+      try{ fetch(TRACK_URL,{method:'POST',mode:'no-cors',credentials:'omit',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body}).catch(()=>{}); }catch(e){}
+    },0);
+  }
   (function(){
     const v=document.getElementById('lvVideo');
     v.addEventListener('play',()=>{
@@ -888,6 +896,7 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
     $('prayer').hidden=false;
     renderPrayer();
     window.scrollTo({top:0,behavior:'auto'});
+    trackPrayer(p, state.n);
   }
   $('back').onclick=goBack;
   // ---- extras tab: list + search ----
