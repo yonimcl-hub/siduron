@@ -239,8 +239,12 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
 .lv-box{border-radius:14px;overflow:hidden;background:#000;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .lv-box video{display:block;width:100%;max-height:70vh;aspect-ratio:16/9;background:#000}
 .lv-box video[hidden]{display:none}
+.lv-about{margin:12px 6px 0;line-height:1.6}
 .lv-msg{text-align:center;font-size:15px;color:var(--muted);margin:14px 4px;line-height:1.6}
 .lv-msg a{color:var(--tekhelet);font-weight:700}
+.bdot{position:absolute;top:5px;inset-inline-start:calc(50% + 7px);width:9px;height:9px;border-radius:50%;background:#E8590C;box-shadow:0 0 0 2px var(--sheet)}
+.bdot[hidden]{display:none}
+#bnav button{position:relative}
 </style>
 </head>
 <body>
@@ -302,12 +306,13 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
 </div>
 <div id="learn" class="tabpage" hidden>
   <div class="tab-in">
-    <h1 class="tab-title">לימוד</h1>
+    <h1 class="tab-title">חיזוק יומי</h1>
     <div id="lv" class="lv">
       <h2 id="lvTitle" class="lv-title"></h2>
       <div id="lvDed" class="lv-ded" hidden></div>
       <div class="lv-box"><video id="lvVideo" controls playsinline preload="metadata"></video></div>
       <div id="lvMsg" class="lv-msg" hidden></div>
+      <div class="lv-ded lv-about">4 דקות של חיזוק יומי על פרשת השבוע מידי יום ביומו מפי הרב שמואל סעדון.</div>
     </div>
   </div>
 </div>
@@ -368,7 +373,7 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
 <nav class="bnav" id="bnav" aria-label="ניווט ראשי">
   <button data-tab="home"><svg viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2.5z"/><path d="M19 17v4H6.5"/><path d="M9 7h6M9 11h6"/></svg><span>סידור</span></button>
   <button data-tab="extras"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><circle cx="17" cy="17" r="3"/><path d="M19.2 19.2 21 21"/></svg><span>תפילות וסדרים</span></button>
-  <button data-tab="learn"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z"/><path d="M12 6v14"/></svg><span>לימוד</span></button>
+  <button data-tab="learn"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z"/><path d="M12 6v14"/></svg><span>חיזוק יומי</span><i class="bdot" id="learnDot" hidden></i></button>
   <button data-tab="prefs"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>הגדרות</span></button>
 </nav>
 <dialog id="resetdlg" class="confirm"><div class="cf-in"><b>לאפס את ההגדרות?</b><p>כל ההגדרות יחזרו לברירת המחדל: נוסח, גודל גופן, מראה, הוראות, עיר ומנהגים. לא ניתן לבטל פעולה זו.</p><div class="cf-btns"><button type="button" class="pbtn" id="resetno">ביטול</button><button type="button" class="pbtn danger" id="resetyes">איפוס</button></div></div></dialog>
@@ -776,25 +781,77 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
     $('lvTitle').textContent=v.title||'';
     $('lvDed').textContent=v.ded||''; $('lvDed').hidden=!v.ded;
     vid.hidden=false; msg.hidden=true;
-    if (vid.getAttribute('src')!==v.url){ vid.setAttribute('src',v.url); vid.load(); }
+    if (vid.getAttribute('src')!==v.url){ trackFlush(); trk=null; vid.setAttribute('src',v.url); vid.load(); }
   }
-  let learnBusy=false;
+  let learnBusy=null;
+  const getLearn=()=>{ try{ return JSON.parse(store.get('siddur-learn')||'null'); }catch(e){ return null; } };
+  function learnSeen(){ const c=getLearn(); if (c){ try{ store.set('siddur-learn-seen',String(c.n)); }catch(e){} } $('learnDot').hidden=true; }
+  function updateLearnDot(){
+    const c=getLearn(); let seen=null; try{ seen=store.get('siddur-learn-seen'); }catch(e){}
+    $('learnDot').hidden = !c || !c.url || (seen!==null && seen===String(c.n)) || !$('learn').hidden;
+  }
+  function fetchLearn(){
+    if (learnBusy) return learnBusy;
+    learnBusy=(async()=>{
+      try{
+        const r=await fetch(LEARN_CSV+'&t='+Date.now(),{cache:'no-store'});
+        if (!r.ok) throw new Error('http '+r.status);
+        const rows=parseCSV(await r.text()).map(x=>(x[0]||'').trim());
+        const v={url:rows[0]||'', title:rows[1]||'', ded:rows[2]||'', n:rows[3]||''};
+        const c=getLearn(), changed=!c || c.n!==v.n || c.url!==v.url || c.title!==v.title || c.ded!==v.ded;
+        if (v.url && changed){ try{ store.set('siddur-learn',JSON.stringify(v)); }catch(e){} }
+        return {v,changed};
+      } finally { learnBusy=null; }
+    })();
+    return learnBusy;
+  }
   async function loadLearn(){
-    let cached=null; try{ cached=JSON.parse(store.get('siddur-learn')||'null'); }catch(e){}
+    const cached=getLearn();
     if (cached) showLearn(cached);
-    if (learnBusy) return; learnBusy=true;
+    learnSeen();
     try{
-      const r=await fetch(LEARN_CSV+'&t='+Date.now(),{cache:'no-store'});
-      if (!r.ok) throw new Error('http '+r.status);
-      const rows=parseCSV(await r.text()).map(x=>(x[0]||'').trim());
-      const v={url:rows[0]||'', title:rows[1]||'', ded:rows[2]||'', n:rows[3]||''};
-      if (v.url && (!cached || cached.n!==v.n || cached.url!==v.url || cached.title!==v.title || cached.ded!==v.ded)){
-        try{ store.set('siddur-learn',JSON.stringify(v)); }catch(e){}
-        showLearn(v);
-      } else if (!cached) showLearn(v);
-    }catch(e){ if (!cached) showLearn(null); }
-    finally{ learnBusy=false; }
+      const {v,changed}=await fetchLearn();
+      if (!$('learn').hidden){ if (changed || !cached) showLearn(v); learnSeen(); }
+    }catch(e){ if (!cached && !$('learn').hidden) showLearn(null); }
   }
+  async function checkLearn(){ try{ await fetchLearn(); }catch(e){} if (!$('learn').hidden) { const c=getLearn(); if (c) showLearn(c); learnSeen(); } else updateLearnDot(); }
+  updateLearnDot(); checkLearn();
+  document.addEventListener('visibilitychange',()=>{ if (document.visibilityState==='visible') checkLearn(); });
+  setInterval(()=>{ if (document.visibilityState==='visible') checkLearn(); }, 10*60*1000);
+  // ---- view tracking -> Google Sheet (tab video_views) via Apps Script ----
+  const TRACK_URL='https://script.google.com/macros/s/AKfycbxCaKYraHFI7ME5dhfGYTe0oNTlYT40hhdPXyfsc1bSrlb4-AUnOSHUMWX10EWagRN4/exec';
+  let trk=null;
+  function devId(){
+    let id=null; try{ id=store.get('siddur-dev'); }catch(e){}
+    if (!id){ id=Math.random().toString(16).slice(2,10); try{ store.set('siddur-dev',id); }catch(e){} }
+    return id;
+  }
+  function trackSend(){
+    if (!trk) return;
+    const v=$('lvVideo'), dur=isFinite(v.duration)?v.duration:0;
+    const max=Math.round(trk.max);
+    if (trk.sent===max) return;
+    trk.sent=max;
+    const c=getLearn()||{};
+    const body=JSON.stringify({dev:trk.dev,sid:trk.sid,n:c.n||'',title:c.title||'',max:max,dur:Math.round(dur)});
+    try{
+      if (navigator.sendBeacon && navigator.sendBeacon(TRACK_URL,new Blob([body],{type:'text/plain;charset=utf-8'}))) return;
+    }catch(e){}
+    try{ fetch(TRACK_URL,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body}); }catch(e){}
+  }
+  function trackFlush(){ if (trk) trackSend(); }
+  (function(){
+    const v=document.getElementById('lvVideo');
+    v.addEventListener('play',()=>{
+      if (!trk){ const dev=devId(); trk={dev, sid:dev+'-'+Date.now().toString(36), max:v.currentTime||0, sent:null}; }
+      trackSend();
+    });
+    v.addEventListener('timeupdate',()=>{ if (trk && !v.seeking && v.currentTime>trk.max) trk.max=v.currentTime; });
+    v.addEventListener('pause',trackFlush);
+    v.addEventListener('ended',()=>{ if (trk && isFinite(v.duration)) trk.max=v.duration; trackFlush(); });
+    document.addEventListener('visibilitychange',()=>{ if (document.visibilityState==='hidden') trackFlush(); });
+    window.addEventListener('pagehide',trackFlush);
+  })();
   document.getElementById('lvVideo').addEventListener('loadedmetadata',e=>{ const v=e.target; if (v.videoWidth&&v.videoHeight) v.style.aspectRatio=v.videoWidth+'/'+v.videoHeight; });
   document.getElementById('lvVideo').addEventListener('error',()=>{
     const v=$('lvVideo'), msg=$('lvMsg'), src=v.getAttribute('src'); if (!src) return;
@@ -809,8 +866,8 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
   }
   function showTab(tab){
     if (tab==='home') return showHome();
-    state.p=null; setTab(tab); if (tab==='prefs') syncPrefs(); if (tab==='learn') loadLearn();
-    document.title={extras:'תפילות וסדרים',learn:'לימוד',prefs:'הגדרות'}[tab]+' – סידור לימות החול';
+    state.p=null; setTab(tab); if (tab==='prefs') syncPrefs(); if (tab==='learn') loadLearn(); else { const lv=document.getElementById('lvVideo'); if (lv && !lv.paused) lv.pause(); }
+    document.title={extras:'תפילות וסדרים',learn:'חיזוק יומי',prefs:'הגדרות'}[tab]+' – סידור לימות החול';
     try{ history.replaceState(null,'','#'+tab); }catch(e){}
     window.scrollTo({top:0,behavior:'auto'});
   }
