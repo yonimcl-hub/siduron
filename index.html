@@ -865,7 +865,9 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
     msg.hidden=false; msg.innerHTML='לא ניתן לנגן את הסרטון כאן. <a href="'+src.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">פתיחת הסרטון בחלון חדש</a>';
   });
   const TABS=['home','extras','learn','prefs'];
+  function pauseLearn(){ const lv=document.getElementById('lvVideo'); if (lv && !lv.paused) lv.pause(); }
   function setTab(tab){
+    if (tab!=='learn') pauseLearn();
     TABS.forEach(k=>{ $(k).hidden = k!==tab; });
     $('prayer').hidden=true;
     $('bnav').hidden=false; document.body.classList.add('has-bnav');
@@ -873,7 +875,7 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
   }
   function showTab(tab){
     if (tab==='home') return showHome();
-    state.p=null; setTab(tab); if (tab==='prefs') syncPrefs(); if (tab==='learn') loadLearn(); else { const lv=document.getElementById('lvVideo'); if (lv && !lv.paused) lv.pause(); }
+    state.p=null; setTab(tab); if (tab==='prefs') syncPrefs(); if (tab==='learn') loadLearn();
     document.title={extras:'תפילות וסדרים',learn:'חיזוק יומי',prefs:'הגדרות'}[tab]+' – סידור לימות החול';
     try{ history.replaceState(null,'','#'+tab); }catch(e){}
     window.scrollTo({top:0,behavior:'auto'});
@@ -890,7 +892,7 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
   let FROM='home';
   function goBack(){ if (FROM==='extras') showTab('extras'); else showHome(); }
   function openPrayer(p){
-    state.p=p;
+    state.p=p; pauseLearn();
     TABS.forEach(k=>{ $(k).hidden=true; });
     $('bnav').hidden=true; document.body.classList.remove('has-bnav');
     $('prayer').hidden=false;
