@@ -233,6 +233,14 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
 .xlist .pin[aria-pressed="true"]{color:var(--tekhelet)}
 .xlist .pin[aria-pressed="true"] svg{fill:currentColor}
 .xlist .pin:hover{color:var(--tekhelet)}
+.lv{margin-top:6px}
+.lv-title{font-family:"Frank Ruhl Libre",serif;font-size:24px;font-weight:700;color:var(--tekhelet);text-align:center;margin:4px 0 6px}
+.lv-ded{text-align:center;font-size:14px;color:var(--muted);margin:0 0 14px}
+.lv-box{border-radius:14px;overflow:hidden;background:#000;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.lv-box video{display:block;width:100%;max-height:70vh;aspect-ratio:16/9;background:#000}
+.lv-box video[hidden]{display:none}
+.lv-msg{text-align:center;font-size:15px;color:var(--muted);margin:14px 4px;line-height:1.6}
+.lv-msg a{color:var(--tekhelet);font-weight:700}
 </style>
 </head>
 <body>
@@ -295,7 +303,12 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
 <div id="learn" class="tabpage" hidden>
   <div class="tab-in">
     <h1 class="tab-title">לימוד</h1>
-    <div class="soon"><b>בקרוב</b>חיזוק יומי, ובהמשך תהילים ושניים מקרא ואחד תרגום.</div>
+    <div id="lv" class="lv">
+      <h2 id="lvTitle" class="lv-title"></h2>
+      <div id="lvDed" class="lv-ded" hidden></div>
+      <div class="lv-box"><video id="lvVideo" controls playsinline preload="metadata"></video></div>
+      <div id="lvMsg" class="lv-msg" hidden></div>
+    </div>
   </div>
 </div>
 <div id="prefs" class="tabpage" hidden>
@@ -742,6 +755,51 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
     openPrayer(b.dataset.p);
   });
 
+  // ---- learn tab: daily video from a published Google Sheet (A1 url, A2 title, A3 dedication, A4 counter) ----
+  const LEARN_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTCp_6Sw7oKTddc2c8kx3Lx4v3iG__UHI50QIZyMc9Fw0fpU4up1MBL7PoGoK34QJ7LL2EXpJze87de/pub?gid=0&single=true&output=csv';
+  function parseCSV(s){
+    const rows=[]; let row=[], f='', q=false;
+    for (let i=0;i<s.length;i++){
+      const c=s[i];
+      if (q){ if (c==='"'){ if (s[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=c; }
+      else if (c==='"') q=true;
+      else if (c===','){ row.push(f); f=''; }
+      else if (c==='\n'||c==='\r'){ if (c==='\r'&&s[i+1]==='\n') i++; row.push(f); rows.push(row); row=[]; f=''; }
+      else f+=c;
+    }
+    if (f!==''||row.length){ row.push(f); rows.push(row); }
+    return rows;
+  }
+  function showLearn(v){
+    const msg=$('lvMsg'), vid=$('lvVideo');
+    if (!v || !v.url){ $('lvTitle').textContent=''; $('lvDed').hidden=true; vid.hidden=true; msg.hidden=false; msg.textContent='לא ניתן לטעון כרגע את הסרטון היומי. בדקו את החיבור לאינטרנט ונסו שוב.'; return; }
+    $('lvTitle').textContent=v.title||'';
+    $('lvDed').textContent=v.ded||''; $('lvDed').hidden=!v.ded;
+    vid.hidden=false; msg.hidden=true;
+    if (vid.getAttribute('src')!==v.url){ vid.setAttribute('src',v.url); vid.load(); }
+  }
+  let learnBusy=false;
+  async function loadLearn(){
+    let cached=null; try{ cached=JSON.parse(store.get('siddur-learn')||'null'); }catch(e){}
+    if (cached) showLearn(cached);
+    if (learnBusy) return; learnBusy=true;
+    try{
+      const r=await fetch(LEARN_CSV+'&t='+Date.now(),{cache:'no-store'});
+      if (!r.ok) throw new Error('http '+r.status);
+      const rows=parseCSV(await r.text()).map(x=>(x[0]||'').trim());
+      const v={url:rows[0]||'', title:rows[1]||'', ded:rows[2]||'', n:rows[3]||''};
+      if (v.url && (!cached || cached.n!==v.n || cached.url!==v.url || cached.title!==v.title || cached.ded!==v.ded)){
+        try{ store.set('siddur-learn',JSON.stringify(v)); }catch(e){}
+        showLearn(v);
+      } else if (!cached) showLearn(v);
+    }catch(e){ if (!cached) showLearn(null); }
+    finally{ learnBusy=false; }
+  }
+  document.getElementById('lvVideo').addEventListener('loadedmetadata',e=>{ const v=e.target; if (v.videoWidth&&v.videoHeight) v.style.aspectRatio=v.videoWidth+'/'+v.videoHeight; });
+  document.getElementById('lvVideo').addEventListener('error',()=>{
+    const v=$('lvVideo'), msg=$('lvMsg'), src=v.getAttribute('src'); if (!src) return;
+    msg.hidden=false; msg.innerHTML='לא ניתן לנגן את הסרטון כאן. <a href="'+src.replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">פתיחת הסרטון בחלון חדש</a>';
+  });
   const TABS=['home','extras','learn','prefs'];
   function setTab(tab){
     TABS.forEach(k=>{ $(k).hidden = k!==tab; });
@@ -751,7 +809,7 @@ body.is-ayt .txt p.ayt.aytl{font-weight:400;color:inherit}
   }
   function showTab(tab){
     if (tab==='home') return showHome();
-    state.p=null; setTab(tab); if (tab==='prefs') syncPrefs();
+    state.p=null; setTab(tab); if (tab==='prefs') syncPrefs(); if (tab==='learn') loadLearn();
     document.title={extras:'תפילות וסדרים',learn:'לימוד',prefs:'הגדרות'}[tab]+' – סידור לימות החול';
     try{ history.replaceState(null,'','#'+tab); }catch(e){}
     window.scrollTo({top:0,behavior:'auto'});
